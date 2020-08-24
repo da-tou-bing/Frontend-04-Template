@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    div {
+      margin: 0;
+      padding: 0;
+    }
+    .piece {
+      width: 50px;
+      height: 50px;
+      display: inline-block;
+      vertical-align: middle;
+      background-color:greenyellow;
+      border: 1px solid;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="board"></div>
+</body>
+<script>
+    const Zero = 0;
+    const X = 1;
+    const O = 2;
+    let patterns = [
+      [Zero,Zero,Zero],
+      [Zero,Zero,Zero],
+      [Zero,Zero,Zero]
+    ];
+    const board = document.getElementById('board');
+    for (let i = 0; i < patterns.length; i++) {
+      const row = patterns[i];
+      for (let j = 0; j < row.length; j++) {
+        draw(i,j);
+      }
+    }
+
+    function draw(i,j) {
+      const rowClass = `row row-${i}`;
+      let rowWrapper = document.getElementsByClassName(rowClass)[0];
+      if(!rowWrapper){
+        rowWrapper = document.createElement('div');
+        rowWrapper.setAttribute('class',rowClass)
+        board.append(rowWrapper);
+      }
+      const piece = document.createElement('div');
+      piece.classList.add('piece');
+      rowWrapper.appendChild(piece);
+    }
+</script>
+
+</html>
