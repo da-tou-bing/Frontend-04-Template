@@ -11,12 +11,16 @@
       padding: 0;
     }
     .piece {
-      width: 50px;
-      height: 50px;
+      width: 80px;
+      height: 80px;
+      line-height:80px;
+      font-size: 30px;
+      text-align: center;
       display: inline-block;
       vertical-align: middle;
       background-color:greenyellow;
-      border: 1px solid;
+      margin:0 0 1px 1px;
+      /* border: 1px solid; */
     }
   </style>
 
@@ -26,9 +30,11 @@
   <div id="board"></div>
 </body>
 <script>
+    let turn = 0;
     const Zero = 0;
     const X = 1;
     const O = 2;
+    const BoardSize = 3;
     let patterns = [
       [Zero,Zero,Zero],
       [Zero,Zero,Zero],
@@ -52,7 +58,60 @@
       }
       const piece = document.createElement('div');
       piece.classList.add('piece');
+      piece.addEventListener('click',(e)=>{
+        handlePieceClick(i,j,e);
+      })
       rowWrapper.appendChild(piece);
+    }
+
+    function handlePieceClick(i,j,e){
+      // console.log(``,i,j);
+      const piece = e.target;
+      if(!piece.childNodes.length){
+        piece.appendChild(document.createTextNode(turn == 0 ? '❌' : '⭕️'));
+        patterns[i][j] = turn == 0? X : O;
+        turn = turn == 0 ? 1 : 0;
+      }
+      checkWin(i,j);
+    }
+
+    function checkWin(i,j){
+      const current = patterns[i][j];
+      const checkDirectionWin = (direction) => {
+        for (let m = 0; m < BoardSize; m++) {
+          if (current != patterns[direction][m]) {
+            return false;
+          }
+        }
+        return true;
+      }
+
+      // 斜线方向
+      const checkSlant = () => {
+        // 如果不是斜线方向上的点
+        if(i != j && Math.abs(i-j) != BoardSize -1) return false;
+        let slant1= true;
+        let slant2 = true;
+        for (let m = 0; m < BoardSize; m++) {
+          if (current != patterns[m][m]) {
+            slant1 = false;
+          }
+          // 02 11 20
+          if(current != patterns[m][BoardSize-1-m]){
+            slant2 =false;
+          }
+        }
+        return slant1 || slant2;
+      }
+
+      // check row direction
+      if (checkDirectionWin(i)) {
+        console.log(`${turn} wins by row`)
+      } else if (checkDirectionWin(j)) {
+        console.log(`${turn} wins by column`)
+      } else if (checkSlant()) { // 斜线方向
+        console.log(`${turn} wins by slant`)
+      }
     }
 </script>
 
