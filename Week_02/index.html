@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>地图编辑器</title>
+  <style>
+    div{
+      padding:0;
+      margin:0;
+    }
+    .cell-wrapper{
+      display:flex;
+      flex-direction:row;
+    }
+    .cell{
+      line-height: 6px;
+      width: 6px;
+      height: 6px;
+      background-color:#ddd;
+      margin:0 1px 1px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="board"></div>
+  <button onclick="save()">save</button>
+</body>
+<script>
+  const points = localStorage['map_map'] !== '0' ? JSON.parse(localStorage['map_map']) : Array(10000).fill(0);
+  const cells = [];
+  let mousedown = false;
+  let isClear = false;
+  function draw(){
+    const board = document.getElementById('board');
+    for (let r = 0; r < 100; r++) {
+      const div = document.createElement('div');
+      div.classList.add('cell-wrapper');
+      board.appendChild(div);
+      for (let c = 0; c <100;c++){
+        const cell = document.createElement('div');
+        cell.setAttribute('tag',c)
+        cells.push(cell);
+        cell.classList.add('cell');
+        if (points[r*100+c] == 1) {
+          cell.style.backgroundColor = 'red';
+        }
+        cell.addEventListener('mouseover',() => {
+          if (mousedown) {
+            cell.style.backgroundColor = isClear ? '' : 'red';
+            points[r*100+c] = isClear? 0 : 1;
+          }
+        })
+        div.append(cell);
+      }
+    }
+
+    board.addEventListener('mousedown',(e)=>{
+      mousedown = true;
+      isClear = e.which == 3;
+    });
+    board.addEventListener('mouseup',(e)=>{
+      mousedown = false;
+    });
+    document.addEventListener('contextmenu',e => e.preventDefault());
+  }
+
+  function save(){
+    console.log(points);
+    localStorage['map_map'] = JSON.stringify(points);
+  }
+
+  function clear(){
+    localStorage['map_map'] = 0;
+  }
+
+  function path(map,start,end){
+    const queue = [start];
+    const insert = (x,y)=>{
+      if (x<0 || x >=100 || y <0 || y >=100) {
+        return;
+      }
+
+      if (map[y*100+x]) {
+        return;
+      }
+      // if (map[y*100+x] == 2 || map[y*100+x] == 0) {
+      //   return;
+      // }
+      map[y*100+x] =2;
+      queue.push([x,y]);
+    };
+
+    while(queue.length){
+      let [x,y] = queue.shift();
+      console.log(x,y);
+      cells[y*100+x].style.backgroundColor = 'green';
+      if (x === end[0] && y=== end[1]) {
+        cells[start[1]*100+start[0]].style.backgroundColor = 'blue';
+        cells[end[1]*100+end[0]].style.backgroundColor = 'blue';
+        return true;
+      }
+      insert(x-1,y);
+      insert(x,y-1);
+      insert(x+1,y);
+      insert(x,y+1);
+    }
+
+    cells[start[1]*100+start[0]].style.backgroundColor = 'blue';
+    cells[end[1]*100+end[0]].style.backgroundColor = 'blue';
+  }
+
+  draw();
+</script>
+</html>
